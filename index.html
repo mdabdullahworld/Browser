@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Phone BD</title>
+    <style>
+        :root {
+            --bg-color: #f1f3f4;
+            --container-bg: white;
+            --text-color: #333;
+            --header-bg: #007bff;
+            --search-bar-bg: #ffffff;
+        }
+
+        .dark-mode {
+            --bg-color: #121212;
+            --container-bg: #1e1e1e;
+            --text-color: #e0e0e0;
+            --header-bg: #1a1a1a;
+            --search-bar-bg: #333;
+        }
+
+        * { box-sizing: border-box; }
+        
+        body {
+            margin: 0; padding: 0;
+            background-color: var(--bg-color);
+            font-family: sans-serif;
+            color: var(--text-color);
+            min-height: 100vh;
+            display: block;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        .status-bar { background-color: var(--header-bg); color: white; padding: 2px 5px; display: flex; justify-content: space-between; font-size: 10px; }
+        
+        header { 
+            background-color: var(--header-bg); 
+            color: white; 
+            text-align: center; 
+            padding: 5px; 
+            font-weight: bold; 
+            font-size: 14px; 
+            position: relative; 
+        }
+
+        .mode-toggle { 
+            position: absolute; 
+            right: 5px; 
+            top: 4px; 
+            background: rgba(255,255,255,0.3); 
+            border: none; 
+            color: white; 
+            border-radius: 3px; 
+            padding: 2px 5px; 
+            cursor: pointer; 
+            font-size: 10px; 
+        }
+
+        @keyframes glowing-text {
+            0% { color: #ff4d4d; text-shadow: 0 0 1px #ff4d4d; }
+            25% { color: #ffff4d; text-shadow: 0 0 1px #ffff4d; }
+            50% { color: #4dff4d; text-shadow: 0 0 1px #4dff4d; }
+            75% { color: #4dffff; text-shadow: 0 0 1px #4dffff; }
+            100% { color: #ff4dff; text-shadow: 0 0 1px #ff4dff; }
+        }
+
+        .rgb-text {
+            animation: glowing-text 2s infinite alternate;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        .search-container { 
+            padding: 8px 5px; 
+            background: var(--container-bg); 
+            border-bottom: 1px solid #ccc; 
+        }
+        
+        .search-bar { 
+            display: flex; 
+            align-items: center; 
+            background: var(--search-bar-bg); 
+            border-radius: 15px; 
+            padding: 2px; 
+            border: 1px solid #999; 
+            width: 100%;
+        }
+
+        #urlInput { 
+            flex: 1; 
+            border: none; 
+            background: transparent; 
+            padding: 5px; 
+            font-size: 12px; 
+            outline: none; 
+            color: var(--text-color); 
+            min-width: 0;
+        }
+
+        .btn-search { 
+            background: #007bff; 
+            color: white; 
+            border: none; 
+            border-radius: 50%; 
+            width: 28px; 
+            height: 28px; 
+            margin-right: 5px; 
+            flex-shrink: 0;
+            font-size: 12px;
+        }
+        
+        .btn-add { 
+            background: #28a745; 
+            color: white; 
+            border: none; 
+            border-radius: 50%; 
+            width: 28px; 
+            height: 28px; 
+            font-size: 18px; 
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .content { 
+            padding: 10px 5px; 
+            text-align: center;
+        }
+        
+        h3 { 
+            font-size: 10px; 
+            color: var(--text-color); 
+            margin: 10px 0 5px 0; 
+            text-transform: uppercase; 
+            border-bottom: 1px solid #ddd;
+            display: inline-block;
+        }
+
+        .grid { 
+            display: grid; 
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 5px; 
+            margin-bottom: 15px; 
+        }
+        
+        .item { 
+            text-align: center; 
+            position: relative; 
+            text-decoration: none; 
+            color: inherit; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .logo-img { 
+            width: 40px; 
+            height: 40px; 
+            border-radius: 10px; 
+            background: white; 
+            object-fit: contain; /* Changed to contain for better logo fit */
+            border: 1px solid #ddd;
+        }
+
+        /* gemini-logo class removed as we are using the official image directly */
+
+        .del-btn { 
+            position: absolute; 
+            top: -5px; 
+            right: -5px; 
+            background: red; 
+            color: white; 
+            border: none; 
+            border-radius: 50%; 
+            width: 15px; 
+            height: 15px; 
+            font-size: 10px; 
+            line-height: 15px;
+            padding: 0;
+            z-index: 5;
+        }
+
+        .label { 
+            font-size: 9px; 
+            font-weight: bold; 
+            margin-top: 2px;
+            white-space: nowrap; 
+            overflow: hidden; 
+            width: 45px; 
+            text-overflow: ellipsis; 
+        }
+
+        footer { 
+            margin-top: 10px;
+            padding: 10px; 
+            text-align: center; 
+            width: 100%;
+        }
+        
+        .footer-text {
+            font-size: 10px;
+            animation: glowing-text 2s infinite alternate;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="status-bar">
+        <span>Cloud Phone</span>
+        <span>4G 🔋</span>
+    </div>
+
+    <header>
+        <span class="rgb-text">Cloud-Browser</span>
+        <button class="mode-toggle" onclick="toggleMode()" id="modeBtn">🌙</button>
+    </header>
+
+    <div class="search-container">
+        <div class="search-bar">
+            <input type="text" id="urlInput" placeholder="Search or URL...">
+            <button class="btn-search" onclick="handleInput()">🔍</button>
+            <button class="btn-add" onclick="addBookmark()">+</button>
+        </div>
+    </div>
+
+    <div class="content">
+        <h3>Highlights</h3>
+        <div class="grid">
+            <a href="https://m.youtube.com" class="item">
+                <img src="https://cdn-icons-png.flaticon.com/128/1384/1384060.png" class="logo-img">
+                <div class="label">YouTube</div>
+            </a>
+            <a href="https://chatgpt.com" class="item">
+                <img src="https://cdn-icons-png.flaticon.com/128/12222/12222588.png" class="logo-img">
+                <div class="label">ChatGPT</div>
+            </a>
+            <a href="https://gemini.google.com" class="item">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/8/8a/Google_Gemini_logo.svg" class="logo-img" style="padding: 5px;">
+                <div class="label">Gemini</div>
+            </a>
+            <a href="https://m.facebook.com" class="item">
+                <img src="https://cdn-icons-png.flaticon.com/128/733/733547.png" class="logo-img">
+                <div class="label">Facebook</div>
+            </a>
+        </div>
+
+        <h3>Bookmarks</h3>
+        <div id="bookmarkGrid" class="grid"></div>
+    </div>
+
+    <footer>
+        <div class="footer-text">Developed & Owned By (Cloudphonebd)</div>
+    </footer>
+
+    <script>
+        window.onload = function() {
+            if(localStorage.getItem('theme') === 'dark') {
+                document.body.classList.add('dark-mode');
+                document.getElementById('modeBtn').innerText = "☀️";
+            }
+            loadBookmarks();
+        };
+
+        // Smart Search Logic
+        function handleInput() {
+            let input = document.getElementById('urlInput').value.trim();
+            if (!input) return;
+
+            if (input.startsWith('http://') || input.startsWith('https://') || input.includes('.')) {
+                let finalUrl = (input.startsWith('http://') || input.startsWith('https://')) ? input : 'https://' + input;
+                window.location.href = finalUrl;
+            } else {
+                window.location.href = "https://www.google.com/search?q=" + encodeURIComponent(input);
+            }
+        }
+
+        document.getElementById('urlInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleInput();
+        });
+
+        function toggleMode() {
+            let body = document.body;
+            let btn = document.getElementById('modeBtn');
+            body.classList.toggle('dark-mode');
+            localStorage.setItem('theme', body.classList.contains('dark-mode') ? 'dark' : 'light');
+            btn.innerText = body.classList.contains('dark-mode') ? "☀️" : "🌙";
+        }
+
+        function addBookmark() {
+            let val = document.getElementById('urlInput').value.trim();
+            if(val) {
+                let list = JSON.parse(localStorage.getItem('myLinks')) || [];
+                list.push(val);
+                localStorage.setItem('myLinks', JSON.stringify(list));
+                document.getElementById('urlInput').value = "";
+                loadBookmarks();
+            }
+        }
+
+        function removeBookmark(index) {
+            let list = JSON.parse(localStorage.getItem('myLinks')) || [];
+            list.splice(index, 1);
+            localStorage.setItem('myLinks', JSON.stringify(list));
+            loadBookmarks();
+        }
+
+        function loadBookmarks() {
+            let list = JSON.parse(localStorage.getItem('myLinks')) || [];
+            let grid = document.getElementById('bookmarkGrid');
+            grid.innerHTML = "";
+            list.forEach((item, index) => {
+                grid.innerHTML += `
+                    <div class="item">
+                        <button class="del-btn" onclick="event.stopPropagation(); removeBookmark(${index})">×</button>
+                        <div onclick="window.location.href='https://www.google.com/search?q=${item}'">
+                            <div style="width:40px; height:40px; background:#5f6368; color:white; border-radius:10px; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:18px; border: 1px solid #ddd;">${item[0].toUpperCase()}</div>
+                            <div class="label">${item}</div>
+                        </div>
+                    </div>`;
+            });
+        }
+    </script>
+</body>
+</html>
